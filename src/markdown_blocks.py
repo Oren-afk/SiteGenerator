@@ -143,22 +143,12 @@ def generate_page(from_path, template_path, dest_path):
         file.write(revised_template)
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
-    with open(template_path) as file:
-        template = file.read()
     for item in os.listdir(dir_path_content):
         item_path = os.path.join(dir_path_content, item)
         if os.path.isfile(item_path) and item.endswith(".md"):
-            with open(item_path) as file:
-                markdown = file.read()
-            html_content = markdown_to_html_node(markdown).to_html()
-            title = extract_title(markdown)
-            revised_template = template.replace("{{ Title }}", title).replace("{{ Content }}", html_content)
             rel_path = os.path.relpath(item_path, dir_path_content)
             dest_file_path = os.path.join(dest_dir_path, rel_path.replace(".md", ".html"))
-            os.makedirs(os.path.dirname(dest_file_path), exist_ok=True)
-            with open(dest_file_path, 'w') as file:
-                file.write(revised_template)
+            generate_page(item_path, template_path, dest_file_path)
         elif os.path.isdir(item_path):
             sub_dest_dir_path = os.path.join(dest_dir_path, item)
-            os.makedirs(sub_dest_dir_path, exist_ok=True)
             generate_pages_recursive(item_path, template_path, sub_dest_dir_path)
